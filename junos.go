@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"regexp"
 	"strings"
 	"time"
 
@@ -148,7 +147,7 @@ type versionPackageInfo struct {
 // about the device.  logger is optional for additonal NETCONF logging
 // logger is any logger that implements the netconf.Logger interface (ex: logrus)
 func NewSession(host, user, password string, logger ...interface{}) (*Junos, error) {
-	rex := regexp.MustCompile(`^.*\[(.*)\]`)
+	//rex := regexp.MustCompile(`^.*\[(.*)\]`)
 
 	if logger != nil {
 		l, ok := logger[0].(netconf.Logger)
@@ -184,19 +183,11 @@ func NewSession(host, user, password string, logger ...interface{}) (*Junos, err
 
 		numRE := len(facts.RE)
 		hostname := facts.RE[0].Hostname
-		res := make([]RoutingEngine, 0, numRE)
-
-		for i := 0; i < numRE; i++ {
-			version := rex.FindStringSubmatch(facts.RE[i].PackageInfo[0].SoftwareVersion[0])
-			model := strings.ToUpper(facts.RE[i].Platform)
-			res = append(res, RoutingEngine{Model: model, Version: version[1]})
-		}
 
 		return &Junos{
 			Session:        s,
 			Hostname:       hostname,
 			RoutingEngines: numRE,
-			Platform:       res,
 			CommitDelay:    0,
 		}, nil
 	}
@@ -207,18 +198,12 @@ func NewSession(host, user, password string, logger ...interface{}) (*Junos, err
 		return nil, err
 	}
 
-	// res := make([]RoutingEngine, 0)
-	var res []RoutingEngine
 	hostname := facts.Hostname
-	version := rex.FindStringSubmatch(facts.PackageInfo[0].SoftwareVersion[0])
-	model := strings.ToUpper(facts.Platform)
-	res = append(res, RoutingEngine{Model: model, Version: version[1]})
 
 	return &Junos{
 		Session:        s,
 		Hostname:       hostname,
 		RoutingEngines: 1,
-		Platform:       res,
 		CommitDelay:    0,
 	}, nil
 }
