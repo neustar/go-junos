@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Juniper/go-netconf/netconf"
+	"github.com/neustar/go-netconf/netconf"
 )
 
 // All of our RPC calls we use.
